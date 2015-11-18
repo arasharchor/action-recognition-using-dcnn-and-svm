@@ -78,7 +78,7 @@ for i in range(20):
             subdir = 's0' + str(s) + '_e02'
         else:
             subdir = 's10_e02'
-    fileserial = open(subdir, 'w')
+    # fileserial = open(subdir, 'w')
     filepath = join(path_dir, 'depth', subdir)
     files = [ f for f in listdir(filepath) if isfile(join(filepath, f)) ]
     file_sns = [ int(f.split('.')[0][8:]) for f in files ]
@@ -97,9 +97,9 @@ for i in range(20):
             img = io.imread(filename)
             img_arr = np.array(img, dtype=np.uint16)
             action.append(img_arr)
+            # fileserial.write(str(file_sns[k]))
+            # fileserial.write('\n')
             k += 1
-            fileserial.write(str(file_sns[k]))
-            fileserial.write('\n')
         X_train.append(action)
         y_train[idx][0] = j + 1
         if 'e01' in filepath:
@@ -107,11 +107,22 @@ for i in range(20):
         else:
             y_train[idx][1] = 2
         idx += 1
-    fileserial.close()
+    # fileserial.close()
 
 X_train = np.array(X_train)
 print('X_train: ', X_train.shape)
 print('y_train: ', y_train.shape)
+
+X_train_copy = []
+for action in X_train:
+    action_copy = action[0].reshape(-1, order='F')
+    for j in np.arange(1, len(action)):
+        frame = action[j]
+        frame = frame.reshape(-1, order='F')
+        action_copy = np.vstack((action_copy, frame))
+    X_train_copy.append(action_copy.T)
+
+X_train = np.array(X_train_copy)
 
 # Serialize data to file
 data = []
